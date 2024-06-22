@@ -1,0 +1,17 @@
+*.glob
+*.vos
+*.html
+*.vok
+*.vo
+*.svg
+*.conf
+README
+*.aux
+Makef*
+*#
+*.swp
+*.d
+*/.*
+LICENS*
+_*
+common
