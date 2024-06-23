@@ -13,5 +13,5 @@ Makef*
 *.d
 */.*
 LICENS*
-_*
 common
+*.swo
