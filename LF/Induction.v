@@ -1007,11 +1007,7 @@ Proof. simpl. reflexivity. Qed.
 
 Theorem bin_nat_bin : forall b, nat_to_bin (bin_to_nat b) = normalize b.
 Proof.
-  intros b.
-  induction b as [|b' IHb'|b'' IHb''].
-  - simpl. reflexivity.
-  - simpl.
-
+  (* FILL IN HERE *) Admitted.
 (** [] *)
 
 (* 2023-12-29 17:12 *)
