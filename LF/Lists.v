@@ -1026,14 +1026,22 @@ Proof.
 (** Before doing the next exercise, make sure you've filled in the
    definition of [remove_one] above. *)
 (** **** Exercise: 3 stars, advanced (remove_does_not_increase_count) *)
+
+Search ( ?x <=? ?y).
+
 Theorem remove_does_not_increase_count: forall (s : bag),
   (count 0 (remove_one 0 s)) <=? (count 0 s) = true.
 Proof.
-intros n. induction n as [| n' IHn'].
-  - (* 0 *)
-    simpl.  reflexivity.
-  - (* S n' *)
-  rewrite -> IHIHn'.  reflexivity.  Qed.
+intros. 
+induction s as [| n s' IHs'].
+  - simpl.  reflexivity.
+  - induction n as [|n' IHn'].
+    -- simpl. 
+       apply leb_n_Sn.
+    -- simpl.
+       rewrite -> IHs'.  
+       reflexivity.  
+Qed.
 
 (** [] *)
 
@@ -1061,7 +1069,12 @@ intros n. induction n as [| n' IHn'].
 Theorem involution_injective : forall (f : nat -> nat),
     (forall n : nat, n = f (f n)) -> (forall n1 n2 : nat, f n1 = f n2 -> n1 = n2).
 Proof.
- Proof. reflexivity. Qed.
+  intros.
+  rewrite -> H, <- H0.
+  rewrite <- H.
+  reflexivity. 
+Qed.
+
 
 (** [] *)
 
@@ -1072,10 +1085,18 @@ Proof.
     you used for [involution_injective]. (But: Don't try to use that
     exercise directly as a lemma: the types are not the same!) *)
 
+Search (rev).
+
 Theorem rev_injective : forall (l1 l2 : natlist),
   rev l1 = rev l2 -> l1 = l2.
 Proof.
- Proof. reflexivity. Qed.
+  intros.
+  rewrite <- rev_involutive.
+  rewrite <- H.
+  rewrite -> rev_involutive.
+  reflexivity.
+Qed.  
+
 (** [] *)
 
 (* ################################################################# *)
@@ -1151,8 +1172,12 @@ Definition option_elim (d : nat) (o : natoption) : nat :=
     Using the same idea, fix the [hd] function from earlier so we don't
     have to pass a default element for the [nil] case.  *)
 
-Definition hd_error (l : natlist) : natoption
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition hd_error (l : natlist) : natoption :=
+  match l with
+  | nil => None
+  | h::_ => Some h
+  end.
+
 
 Example test_hd_error1 : hd_error [] = None.
 Proof. reflexivity. Qed.
@@ -1172,7 +1197,12 @@ Proof. reflexivity. Qed.
 Theorem option_elim_hd : forall (l:natlist) (default:nat),
   hd default l = option_elim default (hd_error l).
 Proof.
- Proof. reflexivity. Qed.
+  intros.
+  induction l.
+  - reflexivity.
+  - simpl.
+    reflexivity. 
+Qed.
 (** [] *)
 
 End NatList.
@@ -1203,10 +1233,16 @@ Definition eqb_id (x1 x2 : id) :=
   | Id n1, Id n2 => n1 =? n2
   end.
 
+Search ( ?x =? ?x).
+
 (** **** Exercise: 1 star, standard (eqb_id_refl) *)
 Theorem eqb_id_refl : forall x, eqb_id x x = true.
 Proof.
- Proof. reflexivity. Qed.
+  intros.
+  destruct x. 
+  simpl.
+  apply eqb_refl.  
+Qed.
 (** [] *)
 
 (** Now we define the type of partial maps: *)
@@ -1247,12 +1283,19 @@ Fixpoint find (x : id) (d : partial_map) : natoption :=
                      else find x d'
   end.
 
+Search (?x =? ?x).
 (** **** Exercise: 1 star, standard (update_eq) *)
 Theorem update_eq :
   forall (d : partial_map) (x : id) (v: nat),
     find x (update d x v) = Some v.
 Proof.
-Proof. reflexivity. Qed.
+  intros.
+  simpl.
+  destruct x.
+  simpl.
+  rewrite -> eqb_refl.
+  reflexivity. 
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard (update_neq) *)
@@ -1260,7 +1303,11 @@ Theorem update_neq :
   forall (d : partial_map) (x y : id) (o: nat),
     eqb_id x y = false -> find x (update d y o) = find x d.
 Proof.
-Proof. reflexivity. Qed.
+  intros.
+  simpl.
+  rewrite -> H.
+  reflexivity. 
+Qed.
 (** [] *)
 End PartialMap.
 
