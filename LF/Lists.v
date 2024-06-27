@@ -887,7 +887,6 @@ Qed.
 Theorem rev_app_distr: forall l1 l2 : natlist,
   rev (l1 ++ l2) = rev l2 ++ rev l1.
 Proof.
- Proof. 
    intros.
     induction l1 as [|l1'].
     - simpl.
@@ -905,7 +904,6 @@ Search (rev).
 Theorem rev_involutive : forall l : natlist,
   rev (rev l) = l.
 Proof.
- Proof. 
   intros.
   induction l.
   - simpl. reflexivity.
