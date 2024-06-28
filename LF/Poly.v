@@ -1118,7 +1118,13 @@ Theorem curry_uncurry : forall (X Y Z : Type)
                         (f : (X * Y) -> Z) (p : X * Y),
   prod_uncurry (prod_curry f) p = f p.
 Proof.
- Proof. reflexivity. Qed.
+  intros.
+  destruct p as [x y].
+  unfold prod_uncurry.
+  simpl.
+  unfold prod_curry.
+   reflexivity. 
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (nth_error_informal)
@@ -1228,17 +1234,22 @@ Proof. reflexivity. Qed.
     => f^n x] as input, [scc] should produce [fun X f x => f^(n+1) x] as
     output. In other words, do it [n] times, then do it once more. *)
 
-Definition scc (n : cnat) : cnat :=
-Admitted.
+Definition scc (n : cnat) :=
+  fun (X : Type) (f : X -> X) (x :X) => f (n X f x).
 
-Example scc_1 : scc zero = one.
-Proof.Proof. reflexivity. Qed.
+Example scc_1 : (scc zero) = one.
+Proof. 
+  unfold scc.
+  unfold one.
+  reflexivity.
+Qed.
+
 
 Example scc_2 : scc one = two.
-Proof.Proof. reflexivity. Qed.
+Proof.  reflexivity. Qed.
 
 Example scc_3 : scc two = three.
-Proof.Proof. reflexivity. Qed.
+Proof.  reflexivity. Qed.
 
 (** [] *)
 
@@ -1257,14 +1268,14 @@ Definition plus (n m : cnat) : cnat
   (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example plus_1 : plus zero one = one.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Example plus_2 : plus two three = plus three two.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Example plus_3 :
   plus (plus two two) three = plus one (plus three three).
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 (** [] *)
 
@@ -1286,13 +1297,13 @@ Definition mult (n m : cnat) : cnat
   (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example mult_1 : mult one one = one.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Example mult_2 : mult zero (plus three three) = zero.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Example mult_3 : mult two three = plus three three.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 (** [] *)
 
@@ -1311,13 +1322,13 @@ Definition exp (n m : cnat) : cnat
   (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
 
 Example exp_1 : exp two two = plus two two.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Example exp_2 : exp three zero = one.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 Example exp_3 : exp three two = plus (mult two (mult two two)) one.
-Proof.Proof. reflexivity. Qed.
+Proof. reflexivity. Qed.
 
 (** [] *)
 
