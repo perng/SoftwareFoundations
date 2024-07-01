@@ -77,7 +77,12 @@ Theorem silly_ex : forall p,
   even p = true ->
   odd (S p) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros p H0 H1 H2.
+  apply H1.
+  apply H0.
+  apply H2.
+Qed.
+
 (** [] *)
 
 (** To use the [apply] tactic, the (conclusion of the) fact
@@ -112,7 +117,13 @@ Theorem rev_exercise1 : forall (l l' : list nat),
   l = rev l' ->
   l' = rev l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  Search (rev).
+  rewrite -> H.
+  symmetry.
+  apply rev_involutive.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (apply_rewrite)
@@ -195,7 +206,12 @@ Example trans_eq_exercise : forall (n m o p : nat),
      (n + p) = m ->
      (n + p) = (minustwo o).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  transitivity (minustwo o).
+  rewrite <- H.
+  apply H0.
+  reflexivity.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -282,7 +298,15 @@ Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
   j = z :: l ->
   x = y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  injection H as Hx.
+  rewrite -> H0 in H.
+  injection H as Hy.
+  rewrite -> Hx. 
+  rewrite -> Hy.
+  reflexivity.
+Qed.
+
 (** [] *)
 
 (** So much for injectivity of constructors.  What about disjointness? *)
@@ -332,7 +356,9 @@ Example discriminate_ex3 :
     x :: y :: l = [] ->
     x = z.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  discriminate H.
+Qed.
 (** [] *)
 
 (** For a more useful example, we can use [discriminate] to make a
@@ -582,7 +608,6 @@ Abort.
     knowing that [double (S n)] is [10] tells us nothing helpful about
     whether [double n] is [10] (indeed, it strongly suggests that
     [double n] is _not_ [10]!!), so [Q] is useless. *)
-
 (** Trying to carry out this proof by induction on [n] when [m] is
     already in the context doesn't work because we are then trying to
     prove a statement involving _every_ [n] but just a _particular_
@@ -646,7 +671,20 @@ Proof.
 Theorem eqb_true : forall n m,
   n =? m = true -> n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n.
+  induction n as [|n'].
+  - intros m eq.
+    destruct m.
+    -- reflexivity.
+    -- discriminate eq.
+  - intros m eq.
+    induction m as [|m' IHm'].
+    -- discriminate eq.
+    -- f_equal.
+       apply IHn'.
+       inversion eq.
+       reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (eqb_true_informal)
@@ -665,11 +703,33 @@ Definition manual_grade_for_informal_proof : option (nat*string) := None.
 
     In addition to being careful about how you use [intros], practice
     using "in" variants in this proof.  (Hint: use [plus_n_Sm].) *)
+
+
 Theorem plus_n_n_injective : forall n m,
   n + n = m + m ->
   n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n as [|n' IHn'].
+  - simpl. 
+    destruct m as [|m'].
+    -- reflexivity.
+    -- intros eq.
+       rewrite <- plus_n_Sm in eq.
+       discriminate eq.
+  - destruct m as [|m'].
+    -- simpl.
+       intros eq. 
+       rewrite <- plus_n_Sm in eq.
+       discriminate eq.
+    -- intros eq.
+       f_equal.
+       apply IHn'.
+       rewrite <- plus_n_Sm in eq.
+       rewrite <- plus_n_Sm in eq.
+       inversion  eq.
+       reflexivity.
+Qed.
+
 (** [] *)
 
 (** The strategy of doing fewer [intros] before an [induction] to
@@ -714,6 +774,7 @@ Theorem double_injective_take2 : forall n m,
   double n = double m ->
   n = m.
 Proof.
+
   intros n m.
   (* [n] and [m] are both in the context *)
   generalize dependent n.
@@ -776,7 +837,21 @@ Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
   length l = n ->
   nth_error l n = None.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n X l len.
+  generalize dependent n.
+  induction l.
+  - reflexivity.
+  - induction n.
+     --  intros eq. 
+         discriminate eq.
+     -- intros eq.
+        apply IHl.
+        simpl in eq.   
+        injection eq as H.
+        apply H.
+Qed.
+
+
 (** [] *)
 
 (* ################################################################# *)
@@ -817,6 +892,7 @@ Proof.
     { rewrite mul_comm. apply mult_assoc. }
   rewrite H. rewrite mult_assoc. reflexivity.
 Qed.
+ 
 
 (** At this point, a bit deeper discussion of unfolding and
     simplification is in order.
@@ -964,7 +1040,27 @@ Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X Y l.
+  induction l as [|h l' IHl'].
+  - intros l1 l2 sp.  
+    injection sp.
+    intros eq1 eq2.
+    rewrite <- eq1.
+    rewrite <- eq2.
+    simpl.
+    reflexivity.
+  - destruct h as [hx hy].
+    simpl.
+    destruct (split l').
+    intros l1 l2 sp.
+    injection sp.
+    intros H1 H2.
+    rewrite <- H1, <- H2.
+    simpl.
+    f_equal.
+    apply IHl'.
+    reflexivity.
+Qed.
 (** [] *)
 
 (** The [eqn:] part of the [destruct] tactic is optional; although
@@ -1039,7 +1135,22 @@ Theorem bool_fn_applied_thrice :
   forall (f : bool -> bool) (b : bool),
   f (f (f b)) = f b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros f b.
+  destruct b eqn:bvalue.
+  - destruct (f true) eqn:ft.
+    -- rewrite -> ft. 
+       apply ft.
+    -- destruct (f false) eqn: ff.
+       apply ft.
+       apply ff.
+  - destruct (f false) eqn:ff.
+    -- destruct (f true) eqn:ft.
+       apply ft.
+       apply ff.
+    -- rewrite -> ff.
+       apply ff.
+Qed.
+
 (** [] *)
 
 (* ################################################################# *)
@@ -1116,11 +1227,15 @@ Proof.
 (* ################################################################# *)
 (** * Additional Exercises *)
 
+Search (?x =? ?y).
 (** **** Exercise: 3 stars, standard (eqb_sym) *)
 Theorem eqb_sym : forall (n m : nat),
   (n =? m) = (m =? n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n.
+  - destruct m. reflexivity. reflexivity.
+  - destruct m. reflexivity. apply IHn.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced, optional (eqb_sym_informal)
@@ -1136,12 +1251,33 @@ Proof.
     [] *)
 
 (** **** Exercise: 3 stars, standard, optional (eqb_trans) *)
+Search (?x =? ?y).
+
 Theorem eqb_trans : forall n m p,
   n =? m = true ->
   m =? p = true ->
   n =? p = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p nm mp.
+  apply eqb_true in nm.
+  apply eqb_true in mp.
+  rewrite -> nm.
+  rewrite <- mp.
+  apply eqb_refl.
+Qed.
+
+Theorem eqb_trans' : forall (n m p : nat),
+  n =? m = true -> m =? p = true -> n =? p = true.
+Proof.
+  induction n.
+  - destruct m, p. reflexivity. discriminate. discriminate. discriminate.
+  - destruct m, p.
+    + discriminate.
+    + discriminate.
+    + discriminate.
+    + simpl. apply IHn.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (split_combine)
@@ -1155,18 +1291,40 @@ Proof.
     Your property will need to account for the behavior of [combine]
     in its base cases, which possibly drop some list elements. *)
 
-Definition split_combine_statement : Prop
-  (* ("[: Prop]" means that we are giving a name to a
-     logical proposition here.) *)
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition split_combine_statement : Prop :=
+  forall (X Y:Type) (l: list (X*Y)) l1 l2, 
+  length l1 = length l2 -> combine l1 l2 = l ->  split l = (l1, l2).
+
 
 Theorem split_combine : split_combine_statement.
 Proof.
-(* FILL IN HERE *) Admitted.
-
+  unfold split_combine_statement.
+  induction l.
+  - intros [] [].
+    reflexivity.
+    discriminate.   
+    discriminate.
+    discriminate.
+ - intros [] [].
+   -- discriminate. 
+   -- discriminate. 
+   -- discriminate. 
+   -- intros. 
+      injection H as H.
+      injection H0 as H0.
+      simpl.
+      destruct x.
+      rewrite (IHl l0 l1 H H1).
+      injection H0.
+      intros.
+      rewrite -> H2, ->H3.
+      reflexivity.
+Qed.
 (* Do not modify the following line: *)
 Definition manual_grade_for_split_combine : option (nat*string) := None.
 (** [] *)
+
+Search (cons).
 
 (** **** Exercise: 3 stars, advanced (filter_exercise) *)
 Theorem filter_exercise : forall (X : Type) (test : X -> bool)
@@ -1174,7 +1332,28 @@ Theorem filter_exercise : forall (X : Type) (test : X -> bool)
   filter test l = x :: lf ->
   test x = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+induction l as [|a l].
+  - (* l = [] *) discriminate.
+  - (* l = a :: l *)
+    {
+      destruct (test a) eqn:H.
+      + (* H : test a = true *)
+        {
+          intros lf eq.
+          simpl in eq. rewrite -> H in eq.
+          injection eq as eq _. rewrite -> eq in H.
+          assumption.
+        }
+      + (* H : test a = false *)
+        {
+          intros lf eq.
+          simpl in eq. rewrite -> H in eq.
+          apply (IHl lf).
+          assumption.
+        }
+   }
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 4 stars, advanced, especially useful (forall_exists_challenge)
@@ -1203,42 +1382,63 @@ Proof.
     [existsb'] and [existsb] have the same behavior.
 *)
 
-Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint forallb {X : Type} (test : X -> bool) (l : list X) : bool :=
+  match l with
+  | [] => true
+  | h :: t => if (test h  ) then (forallb test t) else false
+  end.
 
 Example test_forallb_1 : forallb odd [1;3;5;7;9] = true.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_forallb_2 : forallb negb [false;false] = true.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_forallb_3 : forallb even [0;2;4;5] = false.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_forallb_4 : forallb (eqb 5) [] = true.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
-Fixpoint existsb {X : Type} (test : X -> bool) (l : list X) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint existsb {X : Type} (test : X -> bool) (l : list X) : bool :=
+  match l with
+  | [] => false
+  | h :: t => if (test h  ) then true else  (existsb test t)
+  end.
 
 Example test_existsb_1 : existsb (eqb 5) [0;2;3;6] = false.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_existsb_2 : existsb (andb true) [true;true;false] = true.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_existsb_3 : existsb odd [1;0;0;0;0;3] = true.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
 Example test_existsb_4 : existsb even [] = false.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 
-Definition existsb' {X : Type} (test : X -> bool) (l : list X) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+
+Definition existsb' {X : Type} (test : X -> bool) (l : list X) : bool := 
+    negb (forallb (fun x => negb (test x)) l).
 
 Theorem existsb_existsb' : forall (X : Type) (test : X -> bool) (l : list X),
   existsb test l = existsb' test l.
-Proof. (* FILL IN HERE *) Admitted.
+Proof. 
+  induction l.
+  reflexivity. 
+  simpl.
+  destruct (test x) eqn:testx.
+  - unfold existsb'.
+    simpl.    
+    rewrite -> testx.
+    simpl. simpl. reflexivity.
+  - unfold existsb'.
+    simpl.
+    rewrite -> testx.
+    simpl.
+    apply IHl.
+  Qed.
 
 (** [] *)
 

@@ -1263,9 +1263,9 @@ Proof.  reflexivity. Qed.
     Hint: the "zero" argument to a Church numeral need not be just
     [x]. *)
 
-Definition plus (n m : cnat) : cnat
-  fun 
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition plus (n m : cnat) : cnat := 
+  fun (X : Type) (f : X -> X ) (x : X) => (n X f (m X f x)).
+
 
 Example plus_1 : plus zero one = one.
 Proof. reflexivity. Qed.
@@ -1293,8 +1293,9 @@ Proof. reflexivity. Qed.
     which a type contains itself. So leave the type argument
     unchanged. *)
 
-Definition mult (n m : cnat) : cnat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition mult (n m : cnat) : cnat :=
+  fun (X:Type) (f:X -> X) (x:X) => (n X (m X f) x).
+  
 
 Example mult_1 : mult one one = one.
 Proof. reflexivity. Qed.
@@ -1318,14 +1319,18 @@ Proof. reflexivity. Qed.
     But again, you cannot pass [cnat] itself as the type argument.
     Finding the right type can be tricky. *)
 
-Definition exp (n m : cnat) : cnat
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Definition exp (n m : cnat) : cnat :=
+  fun (X:Type) (f:X -> X) (x:X) => (m (X -> X) (n X)) f x.
+
 
 Example exp_1 : exp two two = plus two two.
 Proof. reflexivity. Qed.
 
 Example exp_2 : exp three zero = one.
-Proof. reflexivity. Qed.
+Proof. 
+  reflexivity.
+Qed.
+
 
 Example exp_3 : exp three two = plus (mult two (mult two two)) one.
 Proof. reflexivity. Qed.
